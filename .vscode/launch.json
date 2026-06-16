@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "autojs",
+            "request": "launch",
+            "stopOnEntry": true,
+            "device": "107848d6ab8969b9",
+            "name": "[Auto.js Pro调试]Redmi 24069RA21C 107848d6ab8969b9"
+        }
+    ]
+}

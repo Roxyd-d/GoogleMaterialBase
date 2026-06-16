@@ -1,0 +1,39 @@
+{
+    "abis": null,
+    "assets": [],
+    "build": {
+        "build_number": null,
+        "build_time": null,
+        "release": null
+    },
+    "encryptLevel": null,
+    "useFeatures": [],
+    "launchConfig": {
+        "displaySplash": null,
+        "hideLogs": null,
+        "splashText": null,
+        "stableMode": null,
+        "splashIcon": null,
+        "splashLayoutXml": null
+    },
+    "main": "main.js",
+    "name": "GoogleMaterialBase",
+    "optimization": {
+        "removeOpenCv": null,
+        "unusedResources": null,
+        "removeAccessibilityService": null,
+        "obfuscateComponents": false
+    },
+    "packageName": "com.gmb.base",
+    "scripts": {},
+    "versionCode": 1,
+    "versionName": "100",
+    "icon": null,
+    "publish": null,
+    "signingConfig": null,
+    "androidResources": null,
+    "permissionConfig": null,
+    "features": null,
+    "plugins": null,
+    "type": null
+}

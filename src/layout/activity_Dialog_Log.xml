@@ -41,7 +41,7 @@
                     <text marginLeft='5' textSize="15sp" textStyle="bold" textColor="{{ThemeColors}}" layout_width="wrap_content" layout_height="wrap_content">最高容纳多少条消息：</text>
                     <com.google.android.material.slider.Slider id="messageMax" layout_width="match_parent" layout_height="wrap_content" stepSize="1" value="1" valueFrom="1" valueTo="20" />
                     <text marginLeft='5' marginTop="10" textSize="15sp" textStyle="bold" textColor="{{ThemeColors}}" layout_width="wrap_content" layout_height="wrap_content">动画时间(ms)：</text>
-                    <com.google.android.material.slider.Slider   id="messageAnimation"  layout_width="match_parent" layout_height="wrap_content" layout_gravity="center" value="10" valueFrom="10" valueTo="1000" />
+                    <com.google.android.material.slider.Slider   id="messageAnimation"  layout_width="match_parent" layout_height="wrap_content" layout_gravity="center" value="10" valueFrom="10" valueTo="1000"/>
                     <LinearLayout id="LayoutBottom" marginBottom="60" />
                 </LinearLayout>
             </ScrollView>

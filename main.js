@@ -82,13 +82,4 @@ createThemeColorListener();
 // ==================== 启动应用 ====================
 initUI();
 
-// threads.start(function () {
-//     sleep(1000);
-//     global.floatyLogInstance.setMaxMessage(5).setBackgroundColor(["#ff0000", "#0080ff"]).show();
-//     for (let i = 0; i < 10; i++) {
-//         global.floatyLog("这是一条日志消息");
-//         sleep(1000);
-//     }
-//     // global.floatyLogInstance.stop();
-// });
 

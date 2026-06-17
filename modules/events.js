@@ -149,22 +149,27 @@ function createLogCustomDialog() {
         .create();
     Dialog.show();
 
+    // 状态回滚
+    DialogRollback(DiaLogLayout);
+
+    // 设置滑块标签格式
+    setSliderLabelFormatter(DiaLogLayout.transparency, "%");
+    setSliderLabelFormatter(DiaLogLayout.messageMax, "条");
+    setSliderLabelFormatter(DiaLogLayout.messageAnimation, "ms");
+
     // 滑块监听
     DiaLogLayout.transparency.addOnChangeListener(DialogOnChangeListener(DiaLogLayout));
     DiaLogLayout.messageMax.addOnChangeListener(DialogOnChangeListener(DiaLogLayout));
     DiaLogLayout.messageAnimation.addOnChangeListener(DialogOnChangeListener(DiaLogLayout));
 
-    //按钮
+    //按钮点击监听
     DiaLogLayout.addColor.setOnClickListener(DialogOnClickListener(DiaLogLayout, Dialog));
     DiaLogLayout.cancel.setOnClickListener(DialogOnClickListener(DiaLogLayout, Dialog));
     DiaLogLayout.affirm.setOnClickListener(DialogOnClickListener(DiaLogLayout, Dialog));
 }
 
 /**
- * 显示主题颜色选择器
- *
- * 创建弹出菜单，展示预设的 10 种中国传统颜色
- * 用户选择后应用新颜色并重启界面
+ * 显示 Material Design 3 风格主题颜色选择器
  */
 function showThemePicker() {
     let colorList = [
@@ -180,22 +185,151 @@ function showThemePicker() {
         { color: "#F05E1C", name: "黄丹" },
     ];
 
-    // 创建弹出菜单
-    let popup = new androidx.appcompat.widget.PopupMenu(activity, ui.ThemeColorsText);
+    // ----- 卡片根容器（MD3 高圆角 + 柔和阴影） -----
+    let card = new android.widget.LinearLayout(activity);
+    card.setOrientation(android.widget.LinearLayout.VERTICAL);
+    card.setPadding(28, 24, 28, 24);
+
+    let bgDrawable = new android.graphics.drawable.GradientDrawable();
+    bgDrawable.setCornerRadius(28);
+    bgDrawable.setColor(android.graphics.Color.WHITE);
+    card.setBackground(bgDrawable);
+    card.setElevation(24);
+    card.setClipToOutline(true);
+
+    // ----- 标题区域 -----
+    let titleLayout = new android.widget.LinearLayout(activity);
+    titleLayout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+    titleLayout.setGravity(android.view.Gravity.CENTER_VERTICAL);
+    titleLayout.setPadding(0, 0, 0, 24);
+
+    let iconView = new android.widget.TextView(activity);
+    iconView.setText("🎨");
+    iconView.setTextSize(22);
+    iconView.setPadding(0, 0, 12, 0);
+    titleLayout.addView(iconView);
+
+    let titleText = new android.widget.TextView(activity);
+    titleText.setText("选择主题色");
+    titleText.setTextSize(20);
+    titleText.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+    titleText.setTextColor(android.graphics.Color.parseColor("#1C1B1F"));
+    titleLayout.addView(titleText);
+    card.addView(titleLayout);
+
+    // ----- 网格容器（两列） -----
+    let grid = new android.widget.GridLayout(activity);
+    grid.setColumnCount(2);
+    grid.setUseDefaultMargins(false);
+    let columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1, 1.0);
+    let rowSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1, 1.0);
+
     for (let i = 0; i < colorList.length; i++) {
-        popup.getMenu().add(colorList[i].name);
+        let item = colorList[i];
+        let itemLayout = new android.widget.LinearLayout(activity);
+        itemLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        itemLayout.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        itemLayout.setPadding(8, 8, 8, 8);
+
+        // 条目背景：圆角 + 涟漪（Ripple）
+        let itemBg = new android.graphics.drawable.GradientDrawable();
+        itemBg.setCornerRadius(20);
+        itemBg.setColor(android.graphics.Color.TRANSPARENT);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            let rippleColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#33000000"));
+            let ripple = new android.graphics.drawable.RippleDrawable(rippleColor, itemBg, null);
+            itemLayout.setBackground(ripple);
+        } else {
+            itemLayout.setBackground(itemBg);
+        }
+        itemLayout.setClickable(true);
+        itemLayout.setFocusable(true);
+
+        // ---- 色块 ----
+        let colorBlock = new android.view.View(activity);
+        let blockSize = 72;
+        let blockLp = new android.widget.LinearLayout.LayoutParams(blockSize, blockSize);
+        blockLp.setMargins(0, 0, 0, 12);
+        colorBlock.setLayoutParams(blockLp);
+
+        let blockDrawable = new android.graphics.drawable.GradientDrawable();
+        blockDrawable.setCornerRadius(20);
+        blockDrawable.setColor(android.graphics.Color.parseColor(item.color));
+        blockDrawable.setStroke(2, android.graphics.Color.parseColor("#1A000000"));
+        colorBlock.setBackground(blockDrawable);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            colorBlock.setElevation(6);
+            colorBlock.setTranslationZ(4);
+        }
+
+        // ---- 色名 ----
+        let nameText = new android.widget.TextView(activity);
+        nameText.setText(item.name);
+        nameText.setTextSize(14);
+        nameText.setTextColor(android.graphics.Color.parseColor("#49454F"));
+        nameText.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.NORMAL));
+        nameText.setGravity(android.view.Gravity.CENTER);
+
+        itemLayout.addView(colorBlock);
+        itemLayout.addView(nameText);
+
+        let gridLp = new android.widget.GridLayout.LayoutParams(rowSpec, columnSpec);
+        gridLp.width = 0;
+        gridLp.height = android.widget.LinearLayout.LayoutParams.WRAP_CONTENT;
+        gridLp.setMargins(8, 8, 8, 8);
+        itemLayout.setLayoutParams(gridLp);
+        grid.addView(itemLayout);
+
+        // ---- 点击事件 ----
+        itemLayout.setOnClickListener(
+            new android.view.View.OnClickListener({
+                onClick: function (v) {
+                    setThemeColors(item.color);
+                    Snackbar.make(ui.CoordinatorLayout, "已切换：「" + item.name + "」", Snackbar.LENGTH_SHORT).show();
+                    popupWindow.dismiss();
+                },
+            }),
+        );
     }
 
-    // 菜单项点击处理
-    popup.setOnMenuItemClickListener((item) => {
-        let selected = colorList.find((c) => c.name === item.getTitle());
-        if (selected) {
-            setThemeColors(selected.color);
-            Snackbar.make(ui.CoordinatorLayout, "已切换主题颜色：" + selected.name, Snackbar.LENGTH_SHORT).show();
-        }
-        return true;
+    card.addView(grid);
+
+    // ----- 创建 PopupWindow -----
+    let popupWindow = new android.widget.PopupWindow(
+        card,
+        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+        true,
+    );
+    popupWindow.setElevation(32);
+    popupWindow.setOutsideTouchable(true);
+    popupWindow.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+    popupWindow.showAsDropDown(ui.ThemeColorsText, 0, 12);
+}
+
+/**
+ * 日志个性化对话框状态回滚
+ * @param {object} DiaLogLayout - 日志个性化对话框布局对象
+ */
+function DialogRollback(DiaLogLayout) {
+    // 滑块
+    DiaLogLayout.transparency.setValue(parseFloat(Storage.get("LayoutAlpha")) || 1);
+    DiaLogLayout.messageMax.setValue(parseInt(Storage.get("MaxMessage")) || 5);
+    DiaLogLayout.messageAnimation.setValue(Storage.get("MessageStartAnimation") || 100);
+}
+
+/**
+ * 给Slider设置气泡标签格式化文本
+ * @param {Slider} slider 滑动条控件实例
+ */
+function setSliderLabelFormatter(slider, suffix) {
+    // console.log(slider.id);
+    slider.setLabelFormatter({
+        getFormattedValue: function (value) {
+            if (slider.id !== 62) return parseInt(value) + suffix;
+            return parseFloat(value).toFixed(2) + suffix;
+        },
     });
-    popup.show();
 }
 
 /**
@@ -217,6 +351,7 @@ function createSwitchListener(key) {
 /**
  * 创建滑动条状态变化监听器
  *
+ * @param {Object} DiaLogLayout - 日志个性化对话框布局对象
  * @returns {function} 监听器函数
  */
 function DialogOnChangeListener(DiaLogLayout) {
@@ -228,15 +363,15 @@ function DialogOnChangeListener(DiaLogLayout) {
                 //透明度
                 case DiaLogLayout.transparency.id:
                     DiaLogLayout.MessageLayout.setAlpha(slider.getValue());
-                    LayoutAlpha = slider.getValue();
+                    // LayoutAlpha = slider.getValue();
                     break;
                 //消息最大数量
                 case DiaLogLayout.messageMax.id:
-                    MaxMessage = slider.getValue();
+                    // MaxMessage = slider.getValue();
                     break;
                 //动画时间
                 case DiaLogLayout.messageAnimation.id:
-                    MessageStartAnimation = slider.getValue();
+                    // MessageStartAnimation = slider.getValue();
                     break;
             }
             // console.log(slider.getValue());
@@ -247,6 +382,7 @@ function DialogOnChangeListener(DiaLogLayout) {
 /**
  * 创建对话框点击监听器
  *
+ * @param {Object} DiaLogLayout - 日志个性化对话框布局对象
  * @returns {function} 监听器函数
  */
 function DialogOnClickListener(DiaLogLayout, Dialog) {
@@ -266,7 +402,9 @@ function DialogOnClickListener(DiaLogLayout, Dialog) {
                     global.floatyLogInstance.setMaxMessage(MaxMessage);
                     global.floatyLogInstance.setMessageAlpha(LayoutAlpha);
 
-                    console.log(`日志个性化保存成功\n消息出现动画时长：${MessageStartAnimation} ms \n最大显示消息数：${MaxMessage} \n布局透明度：${LayoutAlpha}`);
+                    console.log(
+                        `日志个性化保存成功\n消息出现动画时长：${MessageStartAnimation} ms \n最大显示消息数：${MaxMessage} \n布局透明度：${LayoutAlpha}`,
+                    );
                     setTimeout(function () {
                         Dialog.dismiss();
                     }, 200);

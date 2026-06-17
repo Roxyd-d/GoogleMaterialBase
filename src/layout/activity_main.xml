@@ -188,7 +188,7 @@
                                         <button id="LogTheme" w="*" h="*" background="?android:attr/selectableItemBackground" />
                                         <horizontal w="*" h="*">
                                             <img tint="#49454F" src="@drawable/ic_subject_black_48dp" layout_gravity="center_vertical|left" margin="15 0 15 0" w="auto" h="auto" />
-                                            <text id="ThemeColorsText" text="日志个性化" textStyle="bold" textColor="#49454F" textSize="14sp" marginLeft='15' layout_gravity="center_vertical" />
+                                            <text text="日志个性化" textStyle="bold" textColor="#49454F" textSize="14sp" marginLeft='15' layout_gravity="center_vertical" />
                                         </horizontal>
                                     </frame>
                                 </vertical>
